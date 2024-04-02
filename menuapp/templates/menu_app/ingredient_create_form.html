@@ -1,0 +1,15 @@
+{% extends "menu_app/base.html" %}
+{% block content %}
+    <div class="container">
+        <h1>
+            Add an Ingredient to the market stock
+        </h1>
+    </div>
+    <div class="container">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit">
+        </form>
+    </div>
+{% endblock %}

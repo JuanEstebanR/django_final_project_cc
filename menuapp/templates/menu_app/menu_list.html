@@ -1,0 +1,42 @@
+{% extends "menu_app/base.html" %}
+{% block content %}
+    <div class="container">
+    <div class="d-flex flex-row align-items-center">
+        <div class="p-2">
+            <h1>Menu</h1>
+        </div>
+        <div class="p-2">
+            <a class="btn btn-success" href="{% url 'menu_item_create' %}">
+            Add Menu Item
+        </a>
+        </div>
+    </div>
+        <div class="container p-5">
+            {% if menu_items|length > 0 %}
+                <div class="container text-center">
+                    <div class="row">
+                        {% for item in menu_items %}
+                            <div class="col">
+                                <div class="card m-1" style="width: 18rem;">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ item.name }}</h5>
+                                        <h6 class="card-subtitle mb-2 text-body-secondary">Price: {{ item.price }}</h6>
+                                        <p class="text-justify">{{ item.description }}</p>
+                                        <!-- <a href="#" class="card-link">Another link</a>
+                                        <a href="#" class="card-link">Card link</a> -->
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% else %}
+                <div>
+                    <h1>
+                        No items in the menu
+                    </h1>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
