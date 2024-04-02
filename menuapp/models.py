@@ -3,7 +3,7 @@ from django.db import models
 
 # Create your models here.
 class MenuItem(models.Model):
-    name = models.CharField(max_length=100, null=False, blank=False)
+    name = models.CharField(max_length=100, unique=True)
     description = models.TextField()
     price = models.DecimalField(max_digits=5, decimal_places=2)
 
@@ -11,15 +11,21 @@ class MenuItem(models.Model):
         db_table = 'menuapp_menuitem'
 
     def __str__(self):
-        return "{0} - Description: {1} - Price: {2}".format(self.name, self.description, self.price)
+        return "Menu: {0} - Price: {1}".format(self.name, self.price)
+
+    def as_dict(self):
+        return {
+            "name": self.name,
+            "description": self.description,
+            "price": self.price
+        }
 
     def get_absolute_url(self):
         return "/menu"
 
 
 class Ingredient(models.Model):
-    name = models.CharField(max_length=100, null=False, blank=False)
-    description = models.TextField()
+    name = models.CharField(max_length=100, null=False, blank=False, unique=True)
     unit = models.CharField(max_length=50)
     price_per_unit = models.DecimalField(max_digits=5, decimal_places=2)
     quantity = models.DecimalField(max_digits=5, decimal_places=2)
@@ -28,16 +34,22 @@ class Ingredient(models.Model):
         db_table = 'menuapp_ingredient'
 
     def __str__(self):
+        return "{0} - Price per unit: {1}, Quantity: {2}".format(self.name, self.price_per_unit, self.quantity)
+
+    def as_dict(self):
+        """
+        Returns the object as a dictionary
+        :return:
+        """
         return {
             "name": self.name,
-            "description": self.description,
             "unit": self.unit,
             "price_per_unit": self.price_per_unit,
             "quantity": self.quantity,
         }
 
     def get_absolute_url(self):
-        return "/ingredients"
+        return "/"
 
 
 class Recipe(models.Model):
@@ -47,11 +59,18 @@ class Recipe(models.Model):
 
     class Meta:
         db_table = 'menuapp_recipe'
+        unique_together = ['menu_item', 'ingredient']
 
     def __str__(self):
         return "menu_item: {0} - ingredient {1} - {2}".format(self.menu_item.__str__(),
                                                               self.ingredient.name, self.quantity)
 
+    def as_dict(self):
+        return {
+            "menu_item": self.menu_item,
+            "ingredient": self.ingredient,
+            "quantity": self.quantity
+        }
     def get_absolute_url(self):
         return "/menu"
 
@@ -68,7 +87,10 @@ class Order(models.Model):
         ordering = ['order_date']
 
     def __str__(self):
-        return f"menu_item=[{self.menu_item.__str__()}]; time={self.order_date}"
+        return {
+            "menu_item": self.menu_item.name,
+            "order_date": self.order_date
+        }
 
     def get_absolute_url(self):
         return "/purchases"
