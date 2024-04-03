@@ -1,10 +1,11 @@
 from django.shortcuts import render
 from django.views.generic import ListView
 from .models import MenuItem, Ingredient, Recipe, Order
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView
 from .forms import IngredientCreateForm, MenuItemCreateForm, RecipeCreateForm, OrderCreateForm
 from django.shortcuts import get_object_or_404
 import decimal
+from django.db.models import Sum
 
 
 # Create your views here.
@@ -42,6 +43,13 @@ class IngredientCreateView(CreateView):
     model = Ingredient
     form_class = IngredientCreateForm
     template_name = 'menu_app/ingredient_create_form.html'
+    success_url = '/menu/ingredients'
+
+
+class IngredientUpdateView(UpdateView):
+    model = Ingredient
+    form_class = IngredientCreateForm
+    template_name = 'menu_app/ingredient_update_form.html'
     success_url = '/menu/ingredients'
 
 
@@ -87,6 +95,15 @@ class OrderCreateView(CreateView):
     form_class = OrderCreateForm
     success_url = '/menu/orders'
 
+    def post(self, request, *args, **kwargs):
+        menu_item = super().get_form_kwargs()['data']['menu_item']
+        ingredients = Recipe.objects.filter(menu_item=menu_item).values('ingredient', 'quantity')
+        for ingredient in ingredients:
+            store_ingredient = Ingredient.objects.get(pk=ingredient['ingredient'])
+            store_ingredient.quantity -= decimal.Decimal(ingredient['quantity'])
+            store_ingredient.save()
+        return super().post(request, *args, **kwargs)
+
 
 class OrderListView(ListView):
     model = Order
@@ -94,3 +111,18 @@ class OrderListView(ListView):
     context_object_name = 'orders'
     ordering = ['order_date']
     paginate_by = 10
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        orders = Order.objects.all()
+        revenue = Order.objects.aggregate(revenue=Sum("menu_item__price"))['revenue']
+        total_cost = 0
+        for order in orders:
+            for recipe_ingredient in order.menu_item.recipe_set.all():
+                total_cost += recipe_ingredient.ingredient.price_per_unit * recipe_ingredient.quantity
+
+        context['revenue'] = revenue
+        context['orders'] = orders
+        context['profit'] = revenue - total_cost
+        context['total_cost'] = total_cost
+        return context

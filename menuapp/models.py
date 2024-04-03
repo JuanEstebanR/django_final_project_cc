@@ -14,6 +14,10 @@ class MenuItem(models.Model):
         return "Menu: {0} - Price: {1}".format(self.name, self.price)
 
     def as_dict(self):
+        """
+        Returns the object as a dictionary
+        :return:
+        """
         return {
             "name": self.name,
             "description": self.description,
@@ -21,6 +25,10 @@ class MenuItem(models.Model):
         }
 
     def get_absolute_url(self):
+        """
+        Returns the absolute url for the object
+        :return:
+        """
         return "/menu"
 
 
@@ -49,7 +57,11 @@ class Ingredient(models.Model):
         }
 
     def get_absolute_url(self):
-        return "/"
+        """
+        Returns the absolute url for the object
+        :return:
+        """
+        return "menu/ingredients"
 
 
 class Recipe(models.Model):
@@ -66,15 +78,24 @@ class Recipe(models.Model):
                                                               self.ingredient.name, self.quantity)
 
     def as_dict(self):
+        """
+        Returns the object as a dictionary
+        :return:
+        """
         return {
             "menu_item": self.menu_item,
             "ingredient": self.ingredient,
             "quantity": self.quantity
         }
+
     def get_absolute_url(self):
-        return "/menu"
+        return "/menu/recipes"
 
     def enough(self):
+        """
+        Checks if the ingredient quantity is enough to make the recipe
+        :return:
+        """
         return self.quantity <= self.ingredient.quantity
 
 
@@ -87,10 +108,11 @@ class Order(models.Model):
         ordering = ['order_date']
 
     def __str__(self):
-        return {
-            "menu_item": self.menu_item.name,
-            "order_date": self.order_date
-        }
+        return "Menu item: {0} - Order date: {1}".format(self.menu_item.name, self.order_date)
 
     def get_absolute_url(self):
-        return "/purchases"
+        """
+        Returns the absolute url for the object
+        :return:
+        """
+        return "menu/orders"

@@ -4,6 +4,11 @@
         <h1>
             Create a new order
         </h1>
+        <div class="container">
+            <p>
+                {{ error }}
+            </p>
+        </div>
     <div class="container">
         <form method="post">
             {% csrf_token %}
