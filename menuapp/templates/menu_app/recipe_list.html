@@ -10,11 +10,14 @@
                 <ul>
                 {% for key, value in values.items %}
                      <li>
-                         {{ key }}, {{ value }}
+                         Ingredient: {{ key }} cant: {{ value }}
                      </li>
                 {% endfor %}
                 </ul>
             {% endfor %}
         </div>
+    <div class="container">
+        <a class="btn btn-success" href="{% url 'recipe_create' %}">Create</a>
+    </div>
     </div>
 {% endblock %}
