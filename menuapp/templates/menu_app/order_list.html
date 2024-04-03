@@ -1,10 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-
-</body>
-</html>
+{% extends 'menu_app/base.html' %}
+{% block content %}
+    <div class="container">
+        <div class="container">
+            <div class="d-flex flex-row align-items-center">
+                <div class="p-2">
+                    <h1>Orders</h1>
+                </div>
+                <div class="p-2">
+                    <a class="btn btn-success" href="{% url 'order_create' %}">
+                        Add order
+                    </a>
+                </div>
+            </div>
+            <div class="container">
+                <ul class="list-group">
+                    {% for order in orders %}
+                        <li class="list-group-item">{{ order }}</li>
+                    {% endfor %}
+                </ul>
+                <div class="container">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">revenue</th>
+                            <th scope="col">profit</th>
+                            <th scope="col">total cost</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <th scope="row">{{ revenue }}</th>
+                            <td>{{ profit }}</td>
+                            <td>{{ total_cost }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+{% endblock %}
