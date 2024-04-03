@@ -15,7 +15,7 @@
                     <tbody>
                     {% for item in ingredients %}
                         <tr>
-                            <th scope="row">{{ item.name }}</th>
+                            <th scope="row"><a href="{% url 'ingredient_update' item.id %}">{{ item.name }}</a></th>
                             <td>{{ item.unit }}</td>
                             <td>{{ item.price_per_unit }}</td>
                             <td>{{ item.quantity }}</td>
