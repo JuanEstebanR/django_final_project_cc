@@ -1,4 +1,7 @@
-from django.shortcuts import render
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.forms import UserCreationForm
+from django.shortcuts import render, redirect
+from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView
 from .models import MenuItem, Ingredient, Recipe, Order
 from django.views.generic.edit import CreateView, UpdateView
@@ -6,10 +9,36 @@ from .forms import IngredientCreateForm, MenuItemCreateForm, RecipeCreateForm, O
 from django.shortcuts import get_object_or_404
 import decimal
 from django.db.models import Sum
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
-# Create your views here.
-class MenuListView(ListView):
+def login_view(request):
+    """
+    This function authenticates the user and logs them in
+    :param request:
+    :return:
+    """
+    username = request.POST['username']
+    password = request.POST['password']
+    user = authenticate(request, username=username, password=password)
+    if user is not None:
+        login(request, user)
+        return redirect('menu_list')
+
+    return redirect('signup')
+
+
+def logout_view(request):
+    """
+    This function logs out the user
+    :param request:
+    :return:
+    """
+    logout(request)
+    return redirect('login')
+
+
+class MenuListView(LoginRequiredMixin, ListView):
     model = MenuItem
     template_name = 'menu_app/menu_list.html'
     context_object_name = 'menu_items'
@@ -21,7 +50,7 @@ class MenuListView(ListView):
         return context
 
 
-class MenuItemCreateView(CreateView):
+class MenuItemCreateView(LoginRequiredMixin, CreateView):
     model = MenuItem
     template_name = 'menu_app/menu_create_form.html'
     form_class = MenuItemCreateForm
@@ -39,25 +68,22 @@ class IngredientListView(ListView):
         return context
 
 
-class IngredientCreateView(CreateView):
+class IngredientCreateView(LoginRequiredMixin, CreateView):
     model = Ingredient
     form_class = IngredientCreateForm
     template_name = 'menu_app/ingredient_create_form.html'
-    success_url = '/menu/ingredients'
 
 
-class IngredientUpdateView(UpdateView):
+class IngredientUpdateView(LoginRequiredMixin, UpdateView):
     model = Ingredient
     form_class = IngredientCreateForm
     template_name = 'menu_app/ingredient_update_form.html'
-    success_url = '/menu/ingredients'
 
 
-class RecipeCreateView(CreateView):
+class RecipeCreateView(LoginRequiredMixin, CreateView):
     model = Recipe
     form_class = RecipeCreateForm
     template_name = 'menu_app/recipe_create_form.html'
-    success_url = '/menu/recipes'
 
     def post(self, request, *args, **kwargs):
         menu_item = get_object_or_404(MenuItem, pk=request.POST['menu_item'])
@@ -70,7 +96,7 @@ class RecipeCreateView(CreateView):
         return super().post(request, *args, **kwargs)
 
 
-class RecipeListView(ListView):
+class RecipeListView(LoginRequiredMixin, ListView):
     model = Recipe
     context_object_name = 'recipes'
     template_name = 'menu_app/recipe_list.html'
@@ -89,11 +115,10 @@ class RecipeListView(ListView):
         return context
 
 
-class OrderCreateView(CreateView):
+class OrderCreateView(LoginRequiredMixin, CreateView):
     model = Order
     template_name = 'menu_app/order_create_form.html'
     form_class = OrderCreateForm
-    success_url = '/menu/orders'
 
     def post(self, request, *args, **kwargs):
         menu_item = super().get_form_kwargs()['data']['menu_item']
@@ -105,7 +130,7 @@ class OrderCreateView(CreateView):
         return super().post(request, *args, **kwargs)
 
 
-class OrderListView(ListView):
+class OrderListView(LoginRequiredMixin, ListView):
     model = Order
     template_name = 'menu_app/order_list.html'
     context_object_name = 'orders'
@@ -126,3 +151,9 @@ class OrderListView(ListView):
         context['profit'] = revenue - total_cost
         context['total_cost'] = total_cost
         return context
+
+
+class SignUp(CreateView):
+    form_class = UserCreationForm
+    success_url = reverse_lazy('login')
+    template_name = "registration/signup.html"
