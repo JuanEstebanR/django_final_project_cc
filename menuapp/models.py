@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 
 
 # Create your models here.
@@ -29,7 +30,7 @@ class MenuItem(models.Model):
         Returns the absolute url for the object
         :return:
         """
-        return "/menu"
+        return reverse('menu_list')
 
 
 class Ingredient(models.Model):
@@ -61,7 +62,7 @@ class Ingredient(models.Model):
         Returns the absolute url for the object
         :return:
         """
-        return "menu/ingredients"
+        return reverse('ingredient_list')
 
 
 class Recipe(models.Model):
@@ -89,7 +90,7 @@ class Recipe(models.Model):
         }
 
     def get_absolute_url(self):
-        return "/menu/recipes"
+        return reverse('recipe_list')
 
     def enough(self):
         """
@@ -115,4 +116,4 @@ class Order(models.Model):
         Returns the absolute url for the object
         :return:
         """
-        return "menu/orders"
+        return reverse('order_list')
